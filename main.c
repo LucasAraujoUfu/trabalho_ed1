@@ -4,9 +4,89 @@
 
 #include "lib/Mat2d.h"
 
+matriz *readTxt(char *s){
+	FILE *f = fopen(s,"r");
+
+	if(f==NULL)return NULL;
+
+	unsigned char c;
+	int lin=0, col=1;
+	while(fscanf(f,"%c",&c)!=EOF){
+		if(lin==1&&c=='\t')col++;
+		if(c=='\n')lin++;
+	}
+
+	fseek(f,0,SEEK_SET);
+
+	matriz *m = allocMatriz(lin,col);
+	for(int i=0;i<lin;i++){
+		for(int j=0;j<col;j++){
+			fscanf(f,"%hhu",&c);
+			int t = matrizSetValue(m,i,j,c);
+			if(t<0)return NULL;
+		}
+	}
+
+	fclose(f);
+	return m;
+}
+
+int escreveMat(char *s, matriz *m){
+	FILE *f = fopen(s,"w");
+	if(f==NULL)return -1;
+	unsigned char c;
+	int l = linhas(m), col=colunas(m);
+	for(int i=0;i<l;i++){
+		for(int j=0;j<col;j++){
+			int t = matrizGetValue(m,i,j,&c);
+			if(t<0)return -1;
+			fprintf(f,"%d",c);
+			if(j<col-1)fprintf(f,"\t");
+		}
+		fprintf(f,"\n");
+	}
+	fclose(f);
+}
+
+int printMat(matriz *m){
+	unsigned char c;
+	for(int i=0;i<linhas(m);i++){
+		for(int j=0;j<colunas(m);j++){
+			int t = matrizGetValue(m,i,j,&c);
+			if(t<0)return -1;
+			printf("%3d ",c);
+		}
+		printf("\n");
+	}
+	return 0;
+}
+
 int main(int argc, char *argv[]){
-	if(strcmp(argv[1],"-open")==0){
-	
+	if(argc==1){
+		printf("Usage: %s [args][files]\n\n",argv[0]);
+		printf("Try: %s --help\n",argv[0]);
+	}
+	else if(strcmp(argv[1],"-open")==0){
+		if(argc==2){
+			printf("Especifique um arquivo para ser lido.\n");
+		}
+		else{
+			int tam = strlen(argv[2]);
+			if(strstr(argv[2],".txt")!=NULL){
+				matriz *m = readTxt(argv[2]);
+				if(m==NULL){
+					printf("ERROR, não foi possivel ler %s\n",argv[2]);
+				}
+				int t = printMat(m);
+				if(t<0){
+					printf("ERROR, não foi possivel ler %s\n",argv[2]);
+				}
+			}
+			else if(strstr(argv[2],".imm")!=NULL){}
+			else{
+				printf("O formato do arquivo %s é inconpativel\n", argv[2]);
+			}
+		}
 	}
 	else if(strcmp(argv[1],"-convert")==0){
 
