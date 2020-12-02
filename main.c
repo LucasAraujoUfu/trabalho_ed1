@@ -12,7 +12,7 @@ matriz *readTxt(char *s){
 	unsigned char c;
 	int lin=0, col=1;
 	while(fscanf(f,"%c",&c)!=EOF){
-		if(lin==1&&c=='\t')col++;
+		if(lin==1&&(c=='\t'||c==' '))col++;
 		if(c=='\n')lin++;
 	}
 
@@ -46,6 +46,25 @@ int escreveMat(char *s, matriz *m){
 		fprintf(f,"\n");
 	}
 	fclose(f);
+	return 0;
+}
+
+int escreveImm(char *s,matriz *m){
+	FILE * f = fopen(s,"wb");
+	if(f==NULL)return -1;
+	int l = linhas(m);
+	fwrite(&l,sizeof(int),1,f);
+	int c = colunas(m);
+	fwrite(&c,sizeof(int),1,f);
+	for(int i=0;i<l;i++){
+		for(int j=0;j<c;j++){
+			unsigned char u;
+			matrizGetValue(m,i,j,&u);
+			fwrite(&u,sizeof(unsigned char),1,f);
+		}
+	}
+	fclose(f);
+	return 0;
 }
 
 int printMat(matriz *m){
@@ -76,20 +95,38 @@ int main(int argc, char *argv[]){
 				matriz *m = readTxt(argv[2]);
 				if(m==NULL){
 					printf("ERROR, não foi possivel ler %s\n",argv[2]);
+					exit(1);
 				}
 				int t = printMat(m);
 				if(t<0){
 					printf("ERROR, não foi possivel ler %s\n",argv[2]);
+					exit(1);
 				}
 			}
 			else if(strstr(argv[2],".imm")!=NULL){}
 			else{
 				printf("O formato do arquivo %s é inconpativel\n", argv[2]);
+				exit(1);
 			}
 		}
 	}
 	else if(strcmp(argv[1],"-convert")==0){
-
+		if(argc==2)printf("Especifique um arquivo para ser convertido\n");
+		else if(strstr(argv[2],".txt")!=NULL){
+			matriz *m = readTxt(argv[2]);
+			if(m==NULL){
+				printf("ERROR, não foi possivel ler %s\n",argv[2]);
+				exit(1);
+			}
+			char *c = strstr(argv[2],".txt");
+			c[1] = 'i';
+			c[2] = 'm';
+			c[3] = 'm';
+			escreveImm(argv[2],m);	
+		}
+		else{
+			printf("O formato do arquivo %s é inconpativel\n", argv[2]);
+		}
 	}
 	else if(strcmp(argv[1],"-segment")==0){
 
