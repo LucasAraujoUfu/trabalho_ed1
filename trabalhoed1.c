@@ -1,11 +1,23 @@
 #include <stdio.h>
-int main (int argc, char* argv[])
+#include <stdlib.h>
+#include "./matriz/TADmatriz.h"
+
+
+int main (void)
 {
-    if(argc < 1)
-        printf("digite o nome\n");
-    else if(argc == 2)
+    unsigned char let;
+    int res;
+    matriz *mtz = allocMatriz (32, 32);
+    for (int i = 0; i < linhas(mtz); i++)
     {
-        printf("olá, %s seja bem vindo!\n",argv[1]);
+        for (int j = 0; j < colunas(mtz); j++)
+        {
+            let = rand() % 255;
+            matrizsetvalue(mtz, i, j, let);
+        }
     }
+
+    print_matriz(mtz);
+    freeMatriz(mtz);
     return 0;
 }
