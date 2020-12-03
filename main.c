@@ -31,6 +31,30 @@ matriz *readTxt(char *s){
 	return m;
 }
 
+matriz *readImm(char *s){
+	FILE *f = fopen(s,"rb");
+	if(f==NULL)return NULL;
+	
+	int lin,col;
+	fread(&lin,sizeof(int),1,f);
+	fread(&col,sizeof(int),1,f);
+	
+	matriz *m = allocMatriz(lin,col);
+	if(m==NULL)return m;
+	
+	unsigned char c;
+	for(int i=0;i<lin;i++){
+		for(int j=0;j<col;j++){
+			fread(&c,sizeof(unsigned char),1,f);
+			int t = matrizSetValue(m,i,j,c);
+			if(t<0)return NULL;
+		}
+	}
+	
+	fclose(f);
+	return m;
+}
+
 int escreveMat(char *s, matriz *m){
 	FILE *f = fopen(s,"w");
 	if(f==NULL)return -1;
@@ -67,6 +91,21 @@ int escreveImm(char *s,matriz *m){
 	return 0;
 }
 
+matriz *segment(int thr,matriz *m){
+	for(int i=0;i<linhas(m);i++){
+		for(int j=0;j<colunas(m);j++){
+			unsigned char c;
+			int t = matrizGetValue(m,i,j,&c);
+			if(t<0)return NULL;
+			if(c>=thr)c=1;
+			else c=0;
+			t = matrizSetValue(m,i,j,c);
+			if(t<0)return NULL;
+		}
+	}
+	return m;
+}
+
 int printMat(matriz *m){
 	unsigned char c;
 	for(int i=0;i<linhas(m);i++){
@@ -90,7 +129,6 @@ int main(int argc, char *argv[]){
 			printf("Especifique um arquivo para ser lido.\n");
 		}
 		else{
-			int tam = strlen(argv[2]);
 			if(strstr(argv[2],".txt")!=NULL){
 				matriz *m = readTxt(argv[2]);
 				if(m==NULL){
@@ -103,7 +141,18 @@ int main(int argc, char *argv[]){
 					exit(1);
 				}
 			}
-			else if(strstr(argv[2],".imm")!=NULL){}
+			else if(strstr(argv[2],".imm")!=NULL){
+				matriz *m = readImm(argv[2]);
+				if(m==NULL){
+					printf("ERROR, não foi possivel ler %s\n",argv[2]);
+					exit(1);
+				}
+				int t = printMat(m);
+				if(t<0){
+					printf("ERROR, não foi possivel ler %s\n",argv[2]);
+					exit(1);
+				}
+			}
 			else{
 				printf("O formato do arquivo %s é inconpativel\n", argv[2]);
 				exit(1);
@@ -129,7 +178,21 @@ int main(int argc, char *argv[]){
 		}
 	}
 	else if(strcmp(argv[1],"-segment")==0){
-
+		if(argc<5){
+			printf("usage %s -segment [thr] [file.imm] [segfile.imm]\n",argv[0]);
+		}
+		else{
+			matriz *m;
+			if(strstr(argv[3],".txt")!=NULL){
+				m = readTxt(argv[3]);
+			}
+			else if(strstr(argv[3],".imm")!=NULL){
+				m = readImm(argv[3]);
+			}
+			int thr = atoi(argv[2]);
+			m = segment(thr,m);
+			escreveImm(argv[4],m);
+		}
 	}
 	else if(strcmp(argv[1],"-cc")==0){
 
