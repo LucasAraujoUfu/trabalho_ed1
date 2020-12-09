@@ -1,8 +1,34 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "./fila/fifo.h"
+#include "./lib/Mat2d.h"
+#include "conect.h"
 
-#include "lib/Mat2d.h"
+matriz *readImm(char *s){
+	FILE *f = fopen(s,"rb");
+	if(f==NULL)return NULL;
+	
+	int lin,col;
+	fread(&lin,sizeof(int),1,f);
+	fread(&col,sizeof(int),1,f);
+	
+	matriz *m = allocMatriz(lin,col);
+	if(m==NULL)return m;
+	
+	unsigned char c;
+	for(int i=0;i<lin;i++){
+		for(int j=0;j<col;j++){
+			fread(&c,sizeof(unsigned char),1,f);
+			int t = matrizSetValue(m,i,j,c);
+			if(t<0)return NULL;
+		}
+	}
+	
+	fclose(f);
+	return m;
+}
+
 
 matriz *readTxt(char *s){
 	FILE *f = fopen(s,"r");
@@ -47,6 +73,22 @@ int escreveMat(char *s, matriz *m){
 	}
 	fclose(f);
 	return 0;
+}
+
+
+matriz *segment(int thr,matriz *m){
+	for(int i=0;i<linhas(m);i++){
+		for(int j=0;j<colunas(m);j++){
+			unsigned char c;
+			int t = matrizGetValue(m,i,j,&c);
+			if(t<0)return NULL;
+			if(c>=thr)c=1;
+			else c=0;
+			t = matrizSetValue(m,i,j,c);
+			if(t<0)return NULL;
+		}
+	}
+	return m;
 }
 
 int escreveImm(char *s,matriz *m){
@@ -102,8 +144,31 @@ int main(int argc, char *argv[]){
 					printf("ERROR, não foi possivel ler %s\n",argv[2]);
 					exit(1);
 				}
+				freeMatriz(m);
 			}
-			else if(strstr(argv[2],".imm")!=NULL){}
+			else if(strstr(argv[2],".imm")!=NULL){
+				matriz *m = readImm (argv[2]);
+				if(m == NULL)
+				{
+					printf("ERROR, não foi possivel ler %s\n",argv[2]);
+					exit(1);
+				}
+				else
+				{
+					int t = printMat (m);
+					if(t < 0)
+					{
+						printf("ERROR, não foi possivel ler %s\n",argv[2]);
+						exit(1);
+					}
+					else
+					{
+						printf("Operação finalizada com sucesso!\n");
+						freeMatriz(m);
+						return 0;
+					}
+				}
+			}
 			else{
 				printf("O formato do arquivo %s é inconpativel\n", argv[2]);
 				exit(1);
@@ -129,9 +194,53 @@ int main(int argc, char *argv[]){
 		}
 	}
 	else if(strcmp(argv[1],"-segment")==0){
+		if(argc<5){
+			printf("usage %s -segment [thr] [file.imm] [segfile.imm]\n",argv[0]);
+		}
+		else{
+			matriz *m;
+			if(strstr(argv[3],".txt")!=NULL){
+				m = readTxt(argv[3]);
+			}
+			else if(strstr(argv[3],".imm")!=NULL){
+				m = readImm (argv[3]);
+			}
+			int thr = atoi(argv[2]);
+			m = segment(thr, m);
+			escreveImm(argv[4],m);
+		}
 
 	}
 	else if(strcmp(argv[1],"-cc")==0){
+		if(strstr(argv[2], ".imm") != NULL)
+		{
+			matriz *img = readImm (argv[2]);
+			if(strcmp(argv[3],"outfile") == 0)
+			{
+				if(img != NULL)
+				{
+					img = image_conexa(img);
+					printMat(img);
+				}
+				else
+					printf("erro!\n");
+			}else
+			{
+				
+			}
+			freeMatriz(img);
+			
+		}
+		else
+		{
+			printf("Comandos não encontrados");
+			for (int i = 0; i < argc; i++)
+			{
+				printf("%s ",argv[i]);
+			}
+			
+		}
+		
 
 	}
 	else if(strcmp(argv[1],"-lab")==0){
@@ -150,4 +259,5 @@ int main(int argc, char *argv[]){
 		printf("%s %s not found, try %s --help\n",argv[0],argv[1],argv[0]);
 		printf("%s %s não encontrado, tente %s --help\n",argv[0],argv[1],argv[0]);
 	}
+	return 0;
 }
