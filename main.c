@@ -35,8 +35,7 @@ int FindExit(int x_atual, int y_atual,char **maze, int altura,int largura)
 void labirinto(matriz *m){
  exitMaze(m);
  char entrada[2] = startMaze(m);
-
- int res = FindExit(entrada[0],entrada[1],&m,linhas(),colunas())
+ int res = FindExit(entrada[0],entrada[1],&m,linhas(),colunas());
     puts(res ? "success!" : "no luck!");
 setexitMaze(m);
 printMat(m);
@@ -137,7 +136,6 @@ int main(int argc, char *argv[]){
 
 	}
 	else if(strcmp(argv[1],"-lab")==0){
-		matriz *m = readImm(argv[1]);
 
 	}
 	else if(strcmp(argv[1],"--help")==0){

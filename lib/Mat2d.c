@@ -24,7 +24,7 @@ matriz* allocMatriz(int i, int j){
 void exitMaze(matriz* m){
   char* saida = malloc(2*sizeof(char));
   for(int i = 0; i<m->row; i++){
-    if(m[i][0] == 1){
+    if(m[i][m->col - 1] == 1){
       saida[0] = i;
       saida[1] = 0;
     }
