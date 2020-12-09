@@ -5,6 +5,10 @@ typedef struct matriz matriz;
 int linhas(matriz *m);
 int colunas(matriz *m);
 
+void exitMaze(matriz* m);
+void setexitMaze(matriz* m);
+char* startMaze(matriz *m);
+
 matriz* allocMatriz(int i, int j);
 void freeMatriz(matriz* m);
 

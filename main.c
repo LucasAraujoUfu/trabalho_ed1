@@ -4,6 +4,45 @@
 
 #include "lib/Mat2d.h"
 
+int FindExit(int x_atual, int y_atual,char **maze, int altura,int largura)
+{
+
+    if (x_atual < 0 || x_atual >= largura || y_atual < 0 || y_atual >= altura)
+        return 0;
+
+        char aqui = maze[x_atual][y_atual];
+
+        if (aqui == 3)
+        return 1;
+
+        if(aqui == 0 || aqui == 2)
+            return 0;
+
+
+        maze[x_atual][y_atual] = 2;
+         if(FindExit(x_atual ,y_atual-1,maze,altura,largura))return 1;
+         if(FindExit(x_atual+1,y_atual,maze,altura,largura))return 1;
+         if(FindExit(x_atual,y_atual+1,maze,altura,largura))return 1;
+         if(FindExit(x_atual-1,y_atual,maze,altura,largura))return 1;
+
+
+        else{
+         maze[x_atual][y_atual] = 1;
+         return 0;
+        }
+}
+
+void labirinto(matriz *m){
+ exitMaze(m);
+ char entrada[2] = startMaze(m);
+
+ int res = FindExit(entrada[0],entrada[1],&m,linhas(),colunas())
+    puts(res ? "success!" : "no luck!");
+setexitMaze(m);
+printMat(m);
+}
+
+
 matriz *readTxt(char *s){
 	FILE *f = fopen(s,"r");
 
@@ -98,6 +137,7 @@ int main(int argc, char *argv[]){
 
 	}
 	else if(strcmp(argv[1],"-lab")==0){
+		matriz *m = readImm(argv[1]);
 
 	}
 	else if(strcmp(argv[1],"--help")==0){
