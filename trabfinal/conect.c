@@ -44,6 +44,7 @@ matriz* image_conexa (matriz *img)
 
                             while(empty_queue(fi) != SUCESS)
                             {
+                                front_queue(fi, &px);
                                 codx = px.x -1 ;
                                 cody = px.y;
                                 if(1 == pontos(img, codx, cody)
@@ -95,8 +96,6 @@ matriz* image_conexa (matriz *img)
                                     enqueue(fi, temp);
                                     matrizSetValue(result, codx, cody, cont);
                                 }
-
-                                front_queue(fi, &px);
                                 dequeue(fi);
                             }
                             cont++;
