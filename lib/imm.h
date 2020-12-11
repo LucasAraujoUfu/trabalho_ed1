@@ -15,5 +15,8 @@ int escreveImm(char *s,matriz *m);
 matriz *segment(int thr,matriz *m);
 
 int printMat(matriz *m);
+
+int buscaEntrada(unsigned char **mt, int lin, int col, int *i, int *j);
+int buscaSaida(unsigned char **mt, int lin, int col, int i, int j);
 int labirinto(int x_atual, int y_atual,unsigned char **maze, int altura,int largura);
 #endif

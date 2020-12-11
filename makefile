@@ -13,14 +13,14 @@ imm:
 main:
 	mkdir -p obj
 	gcc -c main.c -o obj/main.o
-obj:
+Obj:
 	make fila
 	make matriz
 	make imm
 	make main
 allObj:
-	make obj
+	make Obj
 	mkdir -p bin
 	gcc -o bin/imm obj/fifo.o obj/Mat2d.o obj/imm.o obj/main.o
 clean:
-	rm *.o bin/imm
+	rm obj/*.o bin/imm

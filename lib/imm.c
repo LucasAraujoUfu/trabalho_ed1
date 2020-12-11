@@ -234,9 +234,13 @@ int labirinto(int x_atual, int y_atual,unsigned char **maze, int altura,int larg
 	if (x_atual < 0 || x_atual >= largura || y_atual < 0 || y_atual >= altura)
 		return 0;
 
-	char aqui = maze[x_atual][y_atual];
+	unsigned char aqui = maze[x_atual][y_atual];
+	unsigned char *aq = &maze[x_atual][y_atual];
 
-	if (aqui == 3)return 1;
+	if (aqui == 3){
+		*aq = 2;
+		return 1;
+	}
 
 	if(aqui == 0 || aqui == 2)return 0;
 
@@ -261,4 +265,66 @@ int labirinto(int x_atual, int y_atual,unsigned char **maze, int altura,int larg
 
 
 	return 0;
+}
+
+int buscaEntrada(unsigned char **mt, int lin, int col, int *i, int *j){
+	int i1=0,j1=0;
+	if(mt==NULL)return -1;
+	for(i1=0;i1<lin;i1++){
+		if(mt[0][i1]==1){
+			*i=i1;
+			*j=0;
+			return 0;
+		}
+	}
+	for(i1=0;i1<lin;i1++){
+		if(mt[col-1][i1]==1){
+			*i=i1;
+			*j=col-1;
+			return 0;
+		}
+	}
+	for(j1=0;j1<col;j1++){
+		if(mt[j1][0]==1){
+			*i=0;
+			*j=j1;
+			return 0;
+		}
+	}
+	for(j1=0;j1<col;j1++){
+		if(mt[j1][lin-1]==1){
+			*i=lin-1;
+			*j=j1;
+			return 0;
+		}
+	}
+}
+
+int buscaSaida(unsigned char **mt, int lin, int col, int i, int j){
+	int i1=0,j1=0;
+	if(mt==NULL)return -1;
+	for(i1=0;i1<lin;i1++){
+		if(mt[0][i1]==1&&(j!=0||i1!=i)){
+			mt[0][i1]==3;
+			return 0;
+		}
+	}
+	for(i1=0;i1<lin;i1++){
+		if(mt[col-1][i1]==1&&(j!=col-1||i1!=i)){
+			mt[col-1][i1]=3;
+			return 0;
+		}
+	}
+	for(j1=0;j1<col;j1++){
+		if(mt[j1][0]==1&&(j1!=j||i!=0)){
+			mt[j1][0]=3;
+			return 0;
+		}
+	}
+	for(j1=0;j1<col;j1++){
+		if(mt[j1][lin-1]==1&&(j1!=j||i!=lin-1)){
+			mt[j1][lin-1]=3;
+			return 0;
+		}
+	}
 }

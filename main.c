@@ -142,13 +142,24 @@ int main(int argc, char *argv[]){
 					exit(1);
 				}
 				else{
-					labirinto(0,4,mt,linhas(m),colunas(m));
-					m = arrayToMatriz(mt,linhas(m),colunas(m));
-					if(m==NULL){
-						printf("ERROR2\n");
+					int i,j;
+					int t = buscaEntrada(mt,linhas(m),colunas(m),&i,&j); 
+					if(t<0){
+						printf("ERROR\n");
 						exit(1);
 					}
-					int t = escreveMat(argv[3],m);
+					t = buscaSaida(mt,linhas(m),colunas(m),i,j);
+					if(t<0){
+						printf("ERROR\n");
+						exit(1);
+					}
+					labirinto(j,i,mt,linhas(m),colunas(m));
+					m = arrayToMatriz(mt,linhas(m),colunas(m));
+					if(m==NULL){
+						printf("ERROR\n");
+						exit(1);
+					}
+					t = escreveMat(argv[3],m);
 					if(t<0){
 						printf("ERROR\n");
 						exit(1);
