@@ -3,121 +3,9 @@
 #include <string.h>
 
 #include "lib/Mat2d.h"
+//#include "lib/fifo.h"
+#include "lib/imm.h"
 
-matriz *readTxt(char *s){
-	FILE *f = fopen(s,"r");
-
-	if(f==NULL)return NULL;
-
-	unsigned char c;
-	int lin=0, col=1;
-	while(fscanf(f,"%c",&c)!=EOF){
-		if(lin==1&&(c=='\t'||c==' '))col++;
-		if(c=='\n')lin++;
-	}
-
-	fseek(f,0,SEEK_SET);
-
-	matriz *m = allocMatriz(lin,col);
-	for(int i=0;i<lin;i++){
-		for(int j=0;j<col;j++){
-			fscanf(f,"%hhu",&c);
-			int t = matrizSetValue(m,i,j,c);
-			if(t<0)return NULL;
-		}
-	}
-
-	fclose(f);
-	return m;
-}
-
-matriz *readImm(char *s){
-	FILE *f = fopen(s,"rb");
-	if(f==NULL)return NULL;
-	
-	int lin,col;
-	fread(&lin,sizeof(int),1,f);
-	fread(&col,sizeof(int),1,f);
-	
-	matriz *m = allocMatriz(lin,col);
-	if(m==NULL)return m;
-	
-	unsigned char c;
-	for(int i=0;i<lin;i++){
-		for(int j=0;j<col;j++){
-			fread(&c,sizeof(unsigned char),1,f);
-			int t = matrizSetValue(m,i,j,c);
-			if(t<0)return NULL;
-		}
-	}
-	
-	fclose(f);
-	return m;
-}
-
-int escreveMat(char *s, matriz *m){
-	FILE *f = fopen(s,"w");
-	if(f==NULL)return -1;
-	unsigned char c;
-	int l = linhas(m), col=colunas(m);
-	for(int i=0;i<l;i++){
-		for(int j=0;j<col;j++){
-			int t = matrizGetValue(m,i,j,&c);
-			if(t<0)return -1;
-			fprintf(f,"%d",c);
-			if(j<col-1)fprintf(f,"\t");
-		}
-		fprintf(f,"\n");
-	}
-	fclose(f);
-	return 0;
-}
-
-int escreveImm(char *s,matriz *m){
-	FILE * f = fopen(s,"wb");
-	if(f==NULL)return -1;
-	int l = linhas(m);
-	fwrite(&l,sizeof(int),1,f);
-	int c = colunas(m);
-	fwrite(&c,sizeof(int),1,f);
-	for(int i=0;i<l;i++){
-		for(int j=0;j<c;j++){
-			unsigned char u;
-			matrizGetValue(m,i,j,&u);
-			fwrite(&u,sizeof(unsigned char),1,f);
-		}
-	}
-	fclose(f);
-	return 0;
-}
-
-matriz *segment(int thr,matriz *m){
-	for(int i=0;i<linhas(m);i++){
-		for(int j=0;j<colunas(m);j++){
-			unsigned char c;
-			int t = matrizGetValue(m,i,j,&c);
-			if(t<0)return NULL;
-			if(c>=thr)c=1;
-			else c=0;
-			t = matrizSetValue(m,i,j,c);
-			if(t<0)return NULL;
-		}
-	}
-	return m;
-}
-
-int printMat(matriz *m){
-	unsigned char c;
-	for(int i=0;i<linhas(m);i++){
-		for(int j=0;j<colunas(m);j++){
-			int t = matrizGetValue(m,i,j,&c);
-			if(t<0)return -1;
-			printf("%3d ",c);
-		}
-		printf("\n");
-	}
-	return 0;
-}
 
 int main(int argc, char *argv[]){
 	if(argc==1){
@@ -195,10 +83,79 @@ int main(int argc, char *argv[]){
 		}
 	}
 	else if(strcmp(argv[1],"-cc")==0){
-
+		if(argc !=4){
+			printf("usage: %s -cc [file.imm] [outfile.imm]\n",argv[0]);
+			exit(1);
+		}else{
+			matriz *m = NULL;
+			if(strstr(argv[2],".txt")!=NULL){
+				m = readTxt(argv[2]);
+			}
+			else if(strstr(argv[2],".imm")!=NULL){
+				m = readImm(argv[2]);
+			}
+			else{
+				printf("Arquivo incompativel\n");
+				exit(1);
+			}
+			if(m!=NULL){
+				matriz *m1 = image_conexa(m);
+				if(m1!=NULL){
+					int t = escreveImm(argv[3],m1);
+					if(t<0){
+						printf("ERROR\n");
+						exit(1);
+					}
+				}
+				else{
+					printf("ERROR\n");
+					exit(1);
+				}
+			}
+			else {
+				printf("ERROR\n");
+				exit(1);
+			}
+		}
 	}
 	else if(strcmp(argv[1],"-lab")==0){
-
+		if(argc != 4){
+			printf("usage: %s -lab [imlab.txt] [imlabout.txt]\n",argv[0]);
+			exit(1);
+		}
+		else{
+			matriz *m;
+			if(strstr(argv[2],".txt")!=NULL){
+				m = readTxt(argv[2]);
+			}
+			else if(strstr(argv[2],".imm")!=NULL){
+				m = readImm(argv[2]);
+			}
+			else{
+				printf("Arquivo incompativel\n");
+				exit(1);
+			}
+			if(m!=NULL){
+				unsigned char **mt = toArray(m);
+				if(mt==NULL){
+					printf("error\n");
+					exit(1);
+				}
+				else{
+					labirinto(0,4,mt,linhas(m),colunas(m));
+					m = arrayToMatriz(mt,linhas(m),colunas(m));
+					if(m==NULL){
+						printf("ERROR2\n");
+						exit(1);
+					}
+					int t = escreveMat(argv[3],m);
+					if(t<0){
+						printf("ERROR\n");
+						exit(1);
+					}
+				}
+			}
+		}
 	}
 	else if(strcmp(argv[1],"--help")==0){
 		printf("Usage: %s [args][files]\n\n",argv[0]);
