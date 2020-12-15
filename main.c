@@ -28,6 +28,7 @@ int main(int argc, char *argv[]){
 					printf("ERROR, não foi possivel ler %s\n",argv[2]);
 					exit(1);
 				}
+				freeMatriz(m);
 			}
 			else if(strstr(argv[2],".imm")!=NULL){
 				matriz *m = readImm(argv[2]);
@@ -40,6 +41,7 @@ int main(int argc, char *argv[]){
 					printf("ERROR, não foi possivel ler %s\n",argv[2]);
 					exit(1);
 				}
+				freeMatriz(m);
 			}
 			else{
 				printf("O formato do arquivo %s é inconpativel\n", argv[2]);
@@ -59,7 +61,8 @@ int main(int argc, char *argv[]){
 			c[1] = 'i';
 			c[2] = 'm';
 			c[3] = 'm';
-			escreveImm(argv[2],m);	
+			escreveImm(argv[2],m);
+			freeMatriz(m);
 		}
 		else{
 			printf("O formato do arquivo %s é inconpativel\n", argv[2]);
@@ -70,7 +73,7 @@ int main(int argc, char *argv[]){
 			printf("usage %s -segment [thr] [file.imm] [segfile.imm]\n",argv[0]);
 		}
 		else{
-			matriz *m;
+			matriz *m = NULL;
 			if(strstr(argv[3],".txt")!=NULL){
 				m = readTxt(argv[3]);
 			}
@@ -80,6 +83,7 @@ int main(int argc, char *argv[]){
 			int thr = atoi(argv[2]);
 			m = segment(thr,m);
 			escreveImm(argv[4],m);
+			freeMatriz(m);
 		}
 	}
 	else if(strcmp(argv[1],"-cc")==0){
@@ -116,6 +120,7 @@ int main(int argc, char *argv[]){
 				printf("ERROR\n");
 				exit(1);
 			}
+			freeMatriz(m);
 		}
 	}
 	else if(strcmp(argv[1],"-lab")==0){
@@ -124,7 +129,7 @@ int main(int argc, char *argv[]){
 			exit(1);
 		}
 		else{
-			matriz *m;
+			matriz *m = NULL;
 			if(strstr(argv[2],".txt")!=NULL){
 				m = readTxt(argv[2]);
 			}
@@ -166,6 +171,7 @@ int main(int argc, char *argv[]){
 					}
 				}
 			}
+			freeMatriz(m);
 		}
 	}
 	else if(strcmp(argv[1],"--help")==0){
