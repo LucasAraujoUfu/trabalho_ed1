@@ -22,6 +22,39 @@ matriz* allocMatriz(int i, int j){
   return m;
 }
 
+void exitMaze(matriz* m){
+  char* saida = malloc(2*sizeof(char));
+  for(int i = 0; i<m->row; i++){
+    if(m[i][m->col - 1] == 1){
+      saida[0] = i;
+      saida[1] = 0;
+    }
+  }
+  m[saida[i]][saida[0]] = 3;
+}
+
+void setexitMaze(matriz* m){
+  char* saida = malloc(2*sizeof(char));
+  for(int i = 0; i<m->row; i++){
+    if(m[i][0] == 3){
+      saida[0] = i;
+      saida[1] = 0;
+    }
+  }
+  m[saida[i]][saida[0]] = 2;
+}
+
+char* startMaze(matriz *m){
+  char* entrada = malloc(2*sizeof(char));
+  for(int i = 0; i<m->col; i++){
+    if(m[0][i] == 1){
+      entrada[0]=0;
+      entrada[1] = i;
+    }
+  }
+  return entrada;
+}
+
 void freeMatriz(matriz* m){
   free(m->data);
   free(m);
