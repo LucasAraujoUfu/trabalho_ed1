@@ -18,6 +18,9 @@ Obj:
 	make matriz
 	make imm
 	make main
+stack:
+	mkdir -p obj
+	gcc -c lib/TStack.c -o obj/TStack.o
 allObj:
 	make Obj
 	mkdir -p bin

@@ -4,6 +4,7 @@
 #include "imm.h"
 #include "Mat2d.h"
 #include "fifo.h"
+#include "TStack.h"
 
 matriz *readTxt(char *s){
 	
@@ -230,41 +231,35 @@ matriz* image_conexa (matriz *img){
 }
 
 
-int labirinto(int x_atual, int y_atual,unsigned char **maze, int altura,int largura){
-	if (x_atual < 0 || x_atual >= largura || y_atual < 0 || y_atual >= altura)
-		return 0;
+int maze(int x_current, int y_current,matriz* m, int height,int width)
+{
+  Pilha *p;
+  pilha_init(p);
 
-	unsigned char aqui = maze[x_atual][y_atual];
-	unsigned char *aq = &maze[x_atual][y_atual];
+  pilha_push(p, x_current, y_current);
 
-	if (aqui == 3){
-		*aq = 2;
-		return 1;
-	}
+  char here;
+  while (pilha_pop(p, &x_current, &y_current))
+  {
+    if (x_current < 0 || x_current >= width || y_current < 0 || y_current >= height)
+      continue;
 
-	if(aqui == 0 || aqui == 2)return 0;
+ 	matrizGetValue(m,x_current,y_current,&here);
+	 
+    if (here  == 3)
+      break;
+    if (here == 0 || here == 2)
+      continue;
 
+   matrizSetValue(m,x_current,y_current,2);
+    pilha_push(p, x_current, y_current-1);
+    pilha_push(p, x_current, y_current+1);
+    pilha_push(p, x_current-1, y_current);
+    pilha_push(p, x_current+1, y_current);
+  }
 
-	maze[x_atual][y_atual] = 2;
-	if(labirinto(x_atual ,y_atual-1,maze,altura,largura))return 1;
-
-
-	maze[x_atual][y_atual] =2;
-	if(labirinto(x_atual+1,y_atual,maze,altura,largura))return 1;
-
-
-	maze[x_atual][y_atual] = 2;
-	if(labirinto(x_atual,y_atual+1,maze,altura,largura))return 1;
-
-
-	maze[x_atual][y_atual] = 2;
-	if(labirinto(x_atual-1,y_atual,maze,altura,largura))return 1;
-
-
-	maze[x_atual][y_atual] = 1;
-
-
-	return 0;
+  while (pilha_pop(p, &x_current, &y_current));
+  return (here == 3);
 }
 
 int buscaEntrada(unsigned char **mt, int lin, int col, int *i, int *j){
