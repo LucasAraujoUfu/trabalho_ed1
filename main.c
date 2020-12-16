@@ -158,8 +158,7 @@ int main(int argc, char *argv[]){
 						printf("ERROR\n");
 						exit(1);
 					}
-					labirinto(j,i,mt,linhas(m),colunas(m));
-					m = arrayToMatriz(mt,linhas(m),colunas(m));
+					labirinto(j,i,m,linhas(m),colunas(m));
 					if(m==NULL){
 						printf("ERROR\n");
 						exit(1);
